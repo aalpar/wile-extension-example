@@ -24,23 +24,29 @@ func main() {
 }
 
 func registerFunctions(engine *wile.Engine) {
-	// --- Basic callback ---
-	// func(int64) int64 callback: Scheme lambda invoked from Go
-	must(engine.RegisterFunc("apply-twice",
-		func(f func(int64) int64, n int64) int64 {
+	// Callback functions
+	must(engine.RegisterFuncs(map[string]any{
+		// func(int64) int64 callback: Scheme lambda invoked from Go
+		"apply-twice": func(f func(int64) int64, n int64) int64 {
 			return f(f(n))
-		}))
-
-	// --- Void callback ---
-	// func(int64) callback: Go calls a Scheme lambda for side effects
-	must(engine.RegisterFunc("do-n-times",
-		func(f func(int64), n int64) {
+		},
+		// func(int64) callback: Go calls a Scheme lambda for side effects
+		"do-n-times": func(f func(int64), n int64) {
 			for i := range n {
 				f(int64(i))
 			}
-		}))
+		},
+		// Apply a callback to each element and collect results
+		"map-ints": func(f func(int64) int64, ns []int64) []int64 {
+			result := make([]int64, len(ns))
+			for i, n := range ns {
+				result[i] = f(n)
+			}
+			return result
+		},
+	}))
 
-	// Accumulate callback results in Go to demonstrate void callback
+	// Accumulate callback results in Go (captures local state)
 	var collected []int64
 	must(engine.RegisterFunc("collect",
 		func(f func(int64) int64, ns []int64) []int64 {
@@ -53,41 +59,27 @@ func registerFunctions(engine *wile.Engine) {
 			return result
 		}))
 
-	// --- Callback with transformation ---
-	// Apply a callback to each element and collect results
-	must(engine.RegisterFunc("map-ints",
-		func(f func(int64) int64, ns []int64) []int64 {
-			result := make([]int64, len(ns))
-			for i, n := range ns {
-				result[i] = f(n)
-			}
-			return result
-		}))
-
-	// --- Context forwarding ---
-	// context.Context as first param: automatically forwarded from VM
-	must(engine.RegisterFunc("has-deadline?",
-		func(ctx context.Context) bool {
+	// Context forwarding functions
+	must(engine.RegisterFuncs(map[string]any{
+		// context.Context as first param: automatically forwarded from VM
+		"has-deadline?": func(ctx context.Context) bool {
 			_, ok := ctx.Deadline()
 			return ok
-		}))
-
-	// context.Context + regular args
-	must(engine.RegisterFunc("ctx-double",
-		func(ctx context.Context, n int64) int64 {
+		},
+		// context.Context + regular args
+		"ctx-double": func(ctx context.Context, n int64) int64 {
 			_ = ctx // available for cancellation checks, tracing, etc.
 			return n * 2
-		}))
-
-	// context.Context with deadline check
-	must(engine.RegisterFunc("time-left-ms",
-		func(ctx context.Context) int64 {
+		},
+		// context.Context with deadline check
+		"time-left-ms": func(ctx context.Context) int64 {
 			deadline, ok := ctx.Deadline()
 			if !ok {
 				return -1
 			}
 			return time.Until(deadline).Milliseconds()
-		}))
+		},
+	}))
 }
 
 func runExamples(engine *wile.Engine) {

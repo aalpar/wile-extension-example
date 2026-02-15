@@ -29,56 +29,55 @@ func main() {
 }
 
 func registerFunctions(engine *wile.Engine) {
-	// --- Slice parameters ---
+	must(engine.RegisterFuncs(map[string]any{
+		// --- Slices ---
 
-	// []int64 parameter: Scheme list → Go slice
-	must(engine.RegisterFunc("sum-list", func(ns []int64) int64 {
-		var total int64
-		for _, n := range ns {
-			total += n
-		}
-		return total
-	}))
+		// []int64 parameter: Scheme list → Go slice
+		"sum-list": func(ns []int64) int64 {
+			var total int64
+			for _, n := range ns {
+				total += n
+			}
+			return total
+		},
+		// []string return: Go slice → Scheme list
+		"make-tags": func(n int) []string {
+			tags := make([]string, n)
+			for i := range tags {
+				tags[i] = fmt.Sprintf("tag-%d", i+1)
+			}
+			return tags
+		},
 
-	// []string return: Go slice → Scheme list
-	must(engine.RegisterFunc("make-tags", func(n int) []string {
-		tags := make([]string, n)
-		for i := range tags {
-			tags[i] = fmt.Sprintf("tag-%d", i+1)
-		}
-		return tags
-	}))
+		// --- Maps ---
 
-	// --- Map parameters ---
+		// map[string]int64 parameter: Scheme hashtable → Go map
+		"total-score": func(scores map[string]int64) int64 {
+			var total int64
+			for _, v := range scores {
+				total += v
+			}
+			return total
+		},
+		// map[string]int64 return: Go map → Scheme hashtable
+		"default-config": func() map[string]int64 {
+			return map[string]int64{
+				"timeout": 30,
+				"retries": 3,
+				"port":    8080,
+			}
+		},
 
-	// map[string]int64 parameter: Scheme hashtable → Go map
-	must(engine.RegisterFunc("total-score", func(scores map[string]int64) int64 {
-		var total int64
-		for _, v := range scores {
-			total += v
-		}
-		return total
-	}))
+		// --- Structs ---
 
-	// map[string]int64 return: Go map → Scheme hashtable
-	must(engine.RegisterFunc("default-config", func() map[string]int64 {
-		return map[string]int64{
-			"timeout": 30,
-			"retries": 3,
-			"port":    8080,
-		}
-	}))
-
-	// --- Struct parameters ---
-
-	// struct parameter: Scheme alist → Go struct
-	must(engine.RegisterFunc("greet-user", func(u User) string {
-		return fmt.Sprintf("Hello, %s (age %d)!", u.Name, u.Age)
-	}))
-
-	// struct return: Go struct → Scheme alist
-	must(engine.RegisterFunc("make-user", func(name string, age int64) User {
-		return User{Name: name, Age: age}
+		// struct parameter: Scheme alist → Go struct
+		"greet-user": func(u User) string {
+			return fmt.Sprintf("Hello, %s (age %d)!", u.Name, u.Age)
+		},
+		// struct return: Go struct → Scheme alist
+		"make-user": func(name string, age int64) User {
+			return User{Name: name, Age: age}
+		},
 	}))
 }
 
