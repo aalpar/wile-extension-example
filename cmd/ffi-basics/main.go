@@ -25,61 +25,54 @@ func main() {
 }
 
 func registerFunctions(engine *wile.Engine) {
-	// int64 → int64
-	must(engine.RegisterFunc("double", func(n int64) int64 {
-		return n * 2
-	}))
-
-	// float64 → float64
-	must(engine.RegisterFunc("circle-area", func(r float64) float64 {
-		return math.Pi * r * r
-	}))
-
-	// string → string
-	must(engine.RegisterFunc("greet", func(s string) string {
-		return "Hello, " + s + "!"
-	}))
-
-	// int64 → bool
-	must(engine.RegisterFunc("even?", func(n int64) bool {
-		return n%2 == 0
-	}))
-
-	// []byte → int64
-	must(engine.RegisterFunc("byte-count", func(data []byte) int64 {
-		return int64(len(data))
-	}))
-
-	// Value → Value (pass-through)
-	must(engine.RegisterFunc("identity", func(v wile.Value) wile.Value {
-		return v
-	}))
-
-	// (float64, float64) → (float64, error)
-	must(engine.RegisterFunc("safe-divide", func(a, b float64) (float64, error) {
-		if b == 0 {
-			return 0, fmt.Errorf("division by zero")
-		}
-		return a / b, nil
-	}))
-
-	// string → void (side effect only)
-	must(engine.RegisterFunc("log-message", func(msg string) {
-		fmt.Printf("    [LOG] %s\n", msg)
-	}))
-
-	// variadic int64
-	must(engine.RegisterFunc("sum", func(nums ...int64) int64 {
-		var total int64
-		for _, n := range nums {
-			total += n
-		}
-		return total
-	}))
-
-	// fixed prefix + variadic rest
-	must(engine.RegisterFunc("join", func(sep string, parts ...string) string {
-		return strings.Join(parts, sep)
+	must(engine.RegisterFuncs(map[string]any{
+		// int64 → int64
+		"double": func(n int64) int64 {
+			return n * 2
+		},
+		// float64 → float64
+		"circle-area": func(r float64) float64 {
+			return math.Pi * r * r
+		},
+		// string → string
+		"greet": func(s string) string {
+			return "Hello, " + s + "!"
+		},
+		// int64 → bool
+		"even?": func(n int64) bool {
+			return n%2 == 0
+		},
+		// []byte → int64
+		"byte-count": func(data []byte) int64 {
+			return int64(len(data))
+		},
+		// Value → Value (pass-through)
+		"identity": func(v wile.Value) wile.Value {
+			return v
+		},
+		// (float64, float64) → (float64, error)
+		"safe-divide": func(a, b float64) (float64, error) {
+			if b == 0 {
+				return 0, fmt.Errorf("division by zero")
+			}
+			return a / b, nil
+		},
+		// string → void (side effect only)
+		"log-message": func(msg string) {
+			fmt.Printf("    [LOG] %s\n", msg)
+		},
+		// variadic int64
+		"sum": func(nums ...int64) int64 {
+			var total int64
+			for _, n := range nums {
+				total += n
+			}
+			return total
+		},
+		// fixed prefix + variadic rest
+		"join": func(sep string, parts ...string) string {
+			return strings.Join(parts, sep)
+		},
 	}))
 }
 
