@@ -10,6 +10,9 @@
 // isolated — they see registry primitives (+, *, map, etc.) but not
 // RegisterFunc bindings. Go functions and library exports are composed at
 // the engine level.
+//
+// NOTE: Run from the repository root: go run ./cmd/scheme-library
+// The library search path is relative to the working directory.
 package main
 
 import (
@@ -26,6 +29,7 @@ func main() {
 
 	// Create engine with library support.
 	// The search path points to our lib/ directory where stats.sld lives.
+	// This path is relative to the working directory (run from repo root).
 	engine, err := wile.NewEngine(ctx,
 		wile.WithLibraryPaths("./cmd/scheme-library/lib"),
 	)
@@ -33,12 +37,15 @@ func main() {
 		log.Fatal(err)
 	}
 
+	registerFunctions(engine)
+	runExamples(engine)
+}
+
+func registerFunctions(engine *wile.Engine) {
 	// Register a Go function to demonstrate composition with library exports.
 	must(engine.RegisterFunc("format-result", func(label string, value float64) string {
 		return fmt.Sprintf("%s: %.4f", label, value)
 	}))
-
-	runExamples(engine)
 }
 
 func runExamples(engine *wile.Engine) {
