@@ -2,7 +2,7 @@ module github.com/aalpar/wile-extension-example
 
 go 1.23
 
-require github.com/aalpar/wile v1.3.0
+require github.com/aalpar/wile v1.3.1-0.20260214000000-000000000000
 
 require (
 	github.com/frankban/quicktest v1.14.6 // indirect
@@ -11,3 +11,5 @@ require (
 	github.com/kr/text v0.2.0 // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
 )
+
+replace github.com/aalpar/wile => ../wile
