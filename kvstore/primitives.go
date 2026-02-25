@@ -1,7 +1,6 @@
 package kvstore
 
 import (
-	"context"
 	"sort"
 
 	"github.com/aalpar/wile/machine"
@@ -63,7 +62,7 @@ func (kv *KVStore) primitiveSpecs() []registry.PrimitiveSpec {
 }
 
 // primSet implements (kv-set! key value).
-func (kv *KVStore) primSet(_ context.Context, mc *machine.MachineContext) error {
+func (kv *KVStore) primSet(mc *machine.MachineContext) error {
 	key, err := requireString(mc, 0, "kv-set!")
 	if err != nil {
 		return err
@@ -82,7 +81,7 @@ func (kv *KVStore) primSet(_ context.Context, mc *machine.MachineContext) error 
 }
 
 // primGet implements (kv-get key [default]).
-func (kv *KVStore) primGet(_ context.Context, mc *machine.MachineContext) error {
+func (kv *KVStore) primGet(mc *machine.MachineContext) error {
 	key, err := requireString(mc, 0, "kv-get")
 	if err != nil {
 		return err
@@ -118,7 +117,7 @@ func (kv *KVStore) primGet(_ context.Context, mc *machine.MachineContext) error 
 }
 
 // primDelete implements (kv-delete! key).
-func (kv *KVStore) primDelete(_ context.Context, mc *machine.MachineContext) error {
+func (kv *KVStore) primDelete(mc *machine.MachineContext) error {
 	key, err := requireString(mc, 0, "kv-delete!")
 	if err != nil {
 		return err
@@ -133,7 +132,7 @@ func (kv *KVStore) primDelete(_ context.Context, mc *machine.MachineContext) err
 }
 
 // primKeys implements (kv-keys) → sorted list of all keys.
-func (kv *KVStore) primKeys(_ context.Context, mc *machine.MachineContext) error {
+func (kv *KVStore) primKeys(mc *machine.MachineContext) error {
 	kv.mu.RLock()
 	keys := make([]string, 0, len(kv.data))
 	for k := range kv.data {
@@ -152,7 +151,7 @@ func (kv *KVStore) primKeys(_ context.Context, mc *machine.MachineContext) error
 }
 
 // primCount implements (kv-count) → number of entries.
-func (kv *KVStore) primCount(_ context.Context, mc *machine.MachineContext) error {
+func (kv *KVStore) primCount(mc *machine.MachineContext) error {
 	kv.mu.RLock()
 	n := len(kv.data)
 	kv.mu.RUnlock()
@@ -162,7 +161,7 @@ func (kv *KVStore) primCount(_ context.Context, mc *machine.MachineContext) erro
 }
 
 // primClear implements (kv-clear!) → removes all entries.
-func (kv *KVStore) primClear(_ context.Context, mc *machine.MachineContext) error {
+func (kv *KVStore) primClear(mc *machine.MachineContext) error {
 	kv.mu.Lock()
 	clear(kv.data)
 	kv.mu.Unlock()
