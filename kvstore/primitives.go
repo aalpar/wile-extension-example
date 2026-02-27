@@ -97,6 +97,10 @@ func (kv *KVStore) primGet(_ context.Context, mc *machine.MachineContext) error 
 		if ok {
 			defaultVal = tuple.Car()
 			hasDefault = true
+			if !values.IsEmptyList(tuple.Cdr()) {
+				return values.WrapForeignErrorf(values.ErrWrongNumberOfArguments,
+					"kv-get: expected 1 or 2 arguments")
+			}
 		}
 	}
 
