@@ -119,14 +119,14 @@ func runWithDeadline(engine *wile.Engine) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	result, err := engine.Eval(ctx, "(has-deadline?)")
+	result, err := engine.Eval(ctx, engine.MustParse(ctx, "(has-deadline?)"))
 	if err != nil {
 		fmt.Printf("  %-30s ERROR: %v\n", "with-deadline", err)
 		return
 	}
 	fmt.Printf("  %-30s => %s\n", "(has-deadline?) with timeout", result.SchemeString())
 
-	result, err = engine.Eval(ctx, "(time-left-ms)")
+	result, err = engine.Eval(ctx, engine.MustParse(ctx, "(time-left-ms)"))
 	if err != nil {
 		fmt.Printf("  %-30s ERROR: %v\n", "time-left-ms", err)
 		return

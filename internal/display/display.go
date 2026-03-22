@@ -16,7 +16,7 @@ func Section(name string) {
 // Run evaluates code, printing the label and result.
 func Run(engine *wile.Engine, label, code string) {
 	ctx := context.Background()
-	result, err := engine.Eval(ctx, code)
+	result, err := engine.Eval(ctx, engine.MustParse(ctx, code))
 	if err != nil {
 		fmt.Printf("  %-30s ERROR: %v\n", label, err)
 		return
@@ -46,7 +46,12 @@ func RunMultiple(engine *wile.Engine, label, code string) {
 // RunExpectError evaluates code that should fail, printing the error.
 func RunExpectError(engine *wile.Engine, label, code string) {
 	ctx := context.Background()
-	_, err := engine.Eval(ctx, code)
+	expr, parseErr := engine.Parse(ctx, code)
+	if parseErr != nil {
+		fmt.Printf("  %-30s => error: %v\n", label, parseErr)
+		return
+	}
+	_, err := engine.Eval(ctx, expr)
 	if err != nil {
 		fmt.Printf("  %-30s => error: %v\n", label, err)
 		return
